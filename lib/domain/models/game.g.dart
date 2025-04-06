@@ -79,10 +79,85 @@ const _$GamePrivacyEnumMap = {
 const _$GameTypeEnumMap = {
   GameType.casual: 'casual',
   GameType.pro: 'pro',
+  GameType.tournament: 'tournament',
+  GameType.training: 'training',
 };
 
 const _$SkillLevelEnumMap = {
   SkillLevel.beginner: 'beginner',
   SkillLevel.intermediate: 'intermediate',
+  SkillLevel.advanced: 'advanced',
   SkillLevel.pro: 'pro',
 };
+
+PublicGame _$PublicGameFromJson(Map<String, dynamic> json) => $checkedCreate(
+      'PublicGame',
+      json,
+      ($checkedConvert) {
+        final val = PublicGame(
+          id: $checkedConvert('id', (v) => v as String),
+          title: $checkedConvert('title', (v) => v as String),
+          startTime:
+              $checkedConvert('start_time', (v) => DateTime.parse(v as String)),
+          endTime:
+              $checkedConvert('end_time', (v) => DateTime.parse(v as String)),
+          maxPlayers: $checkedConvert('max_players', (v) => (v as num).toInt()),
+          currentPlayers:
+              $checkedConvert('current_players', (v) => (v as num).toInt()),
+          gameType: $checkedConvert(
+              'game_type', (v) => $enumDecode(_$GameTypeEnumMap, v)),
+          skillLevel: $checkedConvert(
+              'skill_level', (v) => $enumDecode(_$SkillLevelEnumMap, v)),
+          pricePerPlayer:
+              $checkedConvert('price_per_player', (v) => (v as num).toDouble()),
+          requirements: $checkedConvert('requirements',
+              (v) => (v as List<dynamic>).map((e) => e as String).toList()),
+          playerIds: $checkedConvert('player_ids',
+              (v) => (v as List<dynamic>).map((e) => e as String).toList()),
+          courtId: $checkedConvert('court_id', (v) => v as String),
+          playerProfiles: $checkedConvert(
+              'player_profiles',
+              (v) => (v as List<dynamic>)
+                  .map((e) => PlayerProfile.fromJson(e as Map<String, dynamic>))
+                  .toList()),
+          chatMessages: $checkedConvert(
+              'chat_messages',
+              (v) => (v as List<dynamic>)
+                  .map((e) => ChatMessage.fromJson(e as Map<String, dynamic>))
+                  .toList()),
+        );
+        return val;
+      },
+      fieldKeyMap: const {
+        'startTime': 'start_time',
+        'endTime': 'end_time',
+        'maxPlayers': 'max_players',
+        'currentPlayers': 'current_players',
+        'gameType': 'game_type',
+        'skillLevel': 'skill_level',
+        'pricePerPlayer': 'price_per_player',
+        'playerIds': 'player_ids',
+        'courtId': 'court_id',
+        'playerProfiles': 'player_profiles',
+        'chatMessages': 'chat_messages'
+      },
+    );
+
+Map<String, dynamic> _$PublicGameToJson(PublicGame instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'title': instance.title,
+      'start_time': instance.startTime.toIso8601String(),
+      'end_time': instance.endTime.toIso8601String(),
+      'max_players': instance.maxPlayers,
+      'current_players': instance.currentPlayers,
+      'game_type': _$GameTypeEnumMap[instance.gameType]!,
+      'skill_level': _$SkillLevelEnumMap[instance.skillLevel]!,
+      'price_per_player': instance.pricePerPlayer,
+      'requirements': instance.requirements,
+      'player_ids': instance.playerIds,
+      'court_id': instance.courtId,
+      'player_profiles':
+          instance.playerProfiles.map((e) => e.toJson()).toList(),
+      'chat_messages': instance.chatMessages.map((e) => e.toJson()).toList(),
+    };

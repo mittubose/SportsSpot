@@ -13,7 +13,12 @@ void main() {
     address: 'Test Address',
     latitude: 0,
     longitude: 0,
+    description: 'Test venue description',
     amenities: ['WiFi', 'Parking', 'Changing Room'],
+    images: ['test.jpg'],
+    courtTypes: ['singles'],
+    registeredPlayers: [],
+    chatMessages: [],
     timeSlots: [
       TimeSlot(
         id: '1',

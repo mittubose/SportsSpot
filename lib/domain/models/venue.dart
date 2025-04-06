@@ -1,34 +1,10 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:joola_spot/domain/models/player.dart';
+import 'package:joola_spot/domain/models/chat.dart';
 import 'package:joola_spot/domain/models/time_slot.dart';
+import 'package:joola_spot/domain/models/court.dart';
 
 part 'venue.g.dart';
-
-@JsonSerializable()
-class PlayerProfile {
-  final String id;
-  final String name;
-  final String? photoUrl;
-  final String gender;
-  final double rating;
-  final List<String> preferredGameTypes;
-  final List<String> achievements;
-  final DateTime joinedDate;
-
-  PlayerProfile({
-    required this.id,
-    required this.name,
-    this.photoUrl,
-    required this.gender,
-    required this.rating,
-    required this.preferredGameTypes,
-    required this.achievements,
-    required this.joinedDate,
-  });
-
-  factory PlayerProfile.fromJson(Map<String, dynamic> json) =>
-      _$PlayerProfileFromJson(json);
-  Map<String, dynamic> toJson() => _$PlayerProfileToJson(this);
-}
 
 @JsonSerializable()
 class GameRequirement {
@@ -75,29 +51,6 @@ class JoinRequest {
 }
 
 @JsonSerializable()
-class ChatMessage {
-  final String id;
-  final String senderId;
-  final String gameId;
-  final String message;
-  final DateTime sentAt;
-  final bool isRead;
-
-  ChatMessage({
-    required this.id,
-    required this.senderId,
-    required this.gameId,
-    required this.message,
-    required this.sentAt,
-    required this.isRead,
-  });
-
-  factory ChatMessage.fromJson(Map<String, dynamic> json) =>
-      _$ChatMessageFromJson(json);
-  Map<String, dynamic> toJson() => _$ChatMessageToJson(this);
-}
-
-@JsonSerializable()
 class Booking {
   final String id;
   final String venueId;
@@ -133,7 +86,12 @@ class Venue {
   final String address;
   final double latitude;
   final double longitude;
+  final String description;
   final List<String> amenities;
+  final List<String> images;
+  final List<String> courtTypes;
+  final List<PlayerProfile> registeredPlayers;
+  final List<ChatMessage> chatMessages;
   final List<TimeSlot> timeSlots;
   final List<Booking> currentBookings;
   final List<String> publicGameIds;
@@ -142,10 +100,12 @@ class Venue {
   final int totalRatings;
   final bool isActive;
   final DateTime createdAt;
-  final List<PlayerProfile> registeredPlayers;
   final List<JoinRequest> pendingRequests;
-  final List<ChatMessage> gameChats;
   final List<GameRequirement> gameRequirements;
+  @JsonKey(defaultValue: <Court>[])
+  final List<Court> courts;
+  @JsonKey(defaultValue: <TimeSlot>[])
+  final List<TimeSlot> availableSlots;
 
   Venue({
     required this.id,
@@ -153,7 +113,12 @@ class Venue {
     required this.address,
     required this.latitude,
     required this.longitude,
+    required this.description,
     required this.amenities,
+    required this.images,
+    required this.courtTypes,
+    required this.registeredPlayers,
+    required this.chatMessages,
     required this.timeSlots,
     required this.currentBookings,
     required this.publicGameIds,
@@ -162,10 +127,10 @@ class Venue {
     required this.totalRatings,
     required this.isActive,
     required this.createdAt,
-    this.registeredPlayers = const [],
     this.pendingRequests = const [],
-    this.gameChats = const [],
     this.gameRequirements = const [],
+    this.courts = const [],
+    this.availableSlots = const [],
   });
 
   factory Venue.fromJson(Map<String, dynamic> json) => _$VenueFromJson(json);
@@ -189,8 +154,8 @@ class Venue {
   }
 
   List<ChatMessage> getChatMessagesForGame(String gameId) {
-    return gameChats.where((message) => message.gameId == gameId).toList()
-      ..sort((a, b) => b.sentAt.compareTo(a.sentAt));
+    return chatMessages.where((message) => message.gameId == gameId).toList()
+      ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
   }
 
   List<PlayerProfile> getPlayersForGame(String gameId) {
@@ -207,7 +172,12 @@ class Venue {
     String? address,
     double? latitude,
     double? longitude,
+    String? description,
     List<String>? amenities,
+    List<String>? images,
+    List<String>? courtTypes,
+    List<PlayerProfile>? registeredPlayers,
+    List<ChatMessage>? chatMessages,
     List<TimeSlot>? timeSlots,
     List<Booking>? currentBookings,
     List<String>? publicGameIds,
@@ -216,10 +186,10 @@ class Venue {
     int? totalRatings,
     bool? isActive,
     DateTime? createdAt,
-    List<PlayerProfile>? registeredPlayers,
     List<JoinRequest>? pendingRequests,
-    List<ChatMessage>? gameChats,
     List<GameRequirement>? gameRequirements,
+    List<Court>? courts,
+    List<TimeSlot>? availableSlots,
   }) {
     return Venue(
       id: id ?? this.id,
@@ -227,7 +197,12 @@ class Venue {
       address: address ?? this.address,
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,
+      description: description ?? this.description,
       amenities: amenities ?? this.amenities,
+      images: images ?? this.images,
+      courtTypes: courtTypes ?? this.courtTypes,
+      registeredPlayers: registeredPlayers ?? this.registeredPlayers,
+      chatMessages: chatMessages ?? this.chatMessages,
       timeSlots: timeSlots ?? this.timeSlots,
       currentBookings: currentBookings ?? this.currentBookings,
       publicGameIds: publicGameIds ?? this.publicGameIds,
@@ -236,10 +211,10 @@ class Venue {
       totalRatings: totalRatings ?? this.totalRatings,
       isActive: isActive ?? this.isActive,
       createdAt: createdAt ?? this.createdAt,
-      registeredPlayers: registeredPlayers ?? this.registeredPlayers,
       pendingRequests: pendingRequests ?? this.pendingRequests,
-      gameChats: gameChats ?? this.gameChats,
       gameRequirements: gameRequirements ?? this.gameRequirements,
+      courts: courts ?? this.courts,
+      availableSlots: availableSlots ?? this.availableSlots,
     );
   }
 }

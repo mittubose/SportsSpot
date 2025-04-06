@@ -6,45 +6,6 @@ part of 'venue.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-PlayerProfile _$PlayerProfileFromJson(Map<String, dynamic> json) =>
-    $checkedCreate(
-      'PlayerProfile',
-      json,
-      ($checkedConvert) {
-        final val = PlayerProfile(
-          id: $checkedConvert('id', (v) => v as String),
-          name: $checkedConvert('name', (v) => v as String),
-          photoUrl: $checkedConvert('photo_url', (v) => v as String?),
-          gender: $checkedConvert('gender', (v) => v as String),
-          rating: $checkedConvert('rating', (v) => (v as num).toDouble()),
-          preferredGameTypes: $checkedConvert('preferred_game_types',
-              (v) => (v as List<dynamic>).map((e) => e as String).toList()),
-          achievements: $checkedConvert('achievements',
-              (v) => (v as List<dynamic>).map((e) => e as String).toList()),
-          joinedDate: $checkedConvert(
-              'joined_date', (v) => DateTime.parse(v as String)),
-        );
-        return val;
-      },
-      fieldKeyMap: const {
-        'photoUrl': 'photo_url',
-        'preferredGameTypes': 'preferred_game_types',
-        'joinedDate': 'joined_date'
-      },
-    );
-
-Map<String, dynamic> _$PlayerProfileToJson(PlayerProfile instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'name': instance.name,
-      'photo_url': instance.photoUrl,
-      'gender': instance.gender,
-      'rating': instance.rating,
-      'preferred_game_types': instance.preferredGameTypes,
-      'achievements': instance.achievements,
-      'joined_date': instance.joinedDate.toIso8601String(),
-    };
-
 GameRequirement _$GameRequirementFromJson(Map<String, dynamic> json) =>
     $checkedCreate(
       'GameRequirement',
@@ -110,39 +71,6 @@ Map<String, dynamic> _$JoinRequestToJson(JoinRequest instance) =>
       'message': instance.message,
     };
 
-ChatMessage _$ChatMessageFromJson(Map<String, dynamic> json) => $checkedCreate(
-      'ChatMessage',
-      json,
-      ($checkedConvert) {
-        final val = ChatMessage(
-          id: $checkedConvert('id', (v) => v as String),
-          senderId: $checkedConvert('sender_id', (v) => v as String),
-          gameId: $checkedConvert('game_id', (v) => v as String),
-          message: $checkedConvert('message', (v) => v as String),
-          sentAt:
-              $checkedConvert('sent_at', (v) => DateTime.parse(v as String)),
-          isRead: $checkedConvert('is_read', (v) => v as bool),
-        );
-        return val;
-      },
-      fieldKeyMap: const {
-        'senderId': 'sender_id',
-        'gameId': 'game_id',
-        'sentAt': 'sent_at',
-        'isRead': 'is_read'
-      },
-    );
-
-Map<String, dynamic> _$ChatMessageToJson(ChatMessage instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'sender_id': instance.senderId,
-      'game_id': instance.gameId,
-      'message': instance.message,
-      'sent_at': instance.sentAt.toIso8601String(),
-      'is_read': instance.isRead,
-    };
-
 Booking _$BookingFromJson(Map<String, dynamic> json) => $checkedCreate(
       'Booking',
       json,
@@ -195,8 +123,23 @@ Venue _$VenueFromJson(Map<String, dynamic> json) => $checkedCreate(
           address: $checkedConvert('address', (v) => v as String),
           latitude: $checkedConvert('latitude', (v) => (v as num).toDouble()),
           longitude: $checkedConvert('longitude', (v) => (v as num).toDouble()),
+          description: $checkedConvert('description', (v) => v as String),
           amenities: $checkedConvert('amenities',
               (v) => (v as List<dynamic>).map((e) => e as String).toList()),
+          images: $checkedConvert('images',
+              (v) => (v as List<dynamic>).map((e) => e as String).toList()),
+          courtTypes: $checkedConvert('court_types',
+              (v) => (v as List<dynamic>).map((e) => e as String).toList()),
+          registeredPlayers: $checkedConvert(
+              'registered_players',
+              (v) => (v as List<dynamic>)
+                  .map((e) => PlayerProfile.fromJson(e as Map<String, dynamic>))
+                  .toList()),
+          chatMessages: $checkedConvert(
+              'chat_messages',
+              (v) => (v as List<dynamic>)
+                  .map((e) => ChatMessage.fromJson(e as Map<String, dynamic>))
+                  .toList()),
           timeSlots: $checkedConvert(
               'time_slots',
               (v) => (v as List<dynamic>)
@@ -216,28 +159,12 @@ Venue _$VenueFromJson(Map<String, dynamic> json) => $checkedCreate(
           isActive: $checkedConvert('is_active', (v) => v as bool),
           createdAt:
               $checkedConvert('created_at', (v) => DateTime.parse(v as String)),
-          registeredPlayers: $checkedConvert(
-              'registered_players',
-              (v) =>
-                  (v as List<dynamic>?)
-                      ?.map((e) =>
-                          PlayerProfile.fromJson(e as Map<String, dynamic>))
-                      .toList() ??
-                  const []),
           pendingRequests: $checkedConvert(
               'pending_requests',
               (v) =>
                   (v as List<dynamic>?)
                       ?.map((e) =>
                           JoinRequest.fromJson(e as Map<String, dynamic>))
-                      .toList() ??
-                  const []),
-          gameChats: $checkedConvert(
-              'game_chats',
-              (v) =>
-                  (v as List<dynamic>?)
-                      ?.map((e) =>
-                          ChatMessage.fromJson(e as Map<String, dynamic>))
                       .toList() ??
                   const []),
           gameRequirements: $checkedConvert(
@@ -248,10 +175,23 @@ Venue _$VenueFromJson(Map<String, dynamic> json) => $checkedCreate(
                           GameRequirement.fromJson(e as Map<String, dynamic>))
                       .toList() ??
                   const []),
+          courts: $checkedConvert(
+              'courts',
+              (v) => (v as List<dynamic>)
+                  .map((e) => Court.fromJson(e as Map<String, dynamic>))
+                  .toList()),
+          availableSlots: $checkedConvert(
+              'available_slots',
+              (v) => (v as List<dynamic>)
+                  .map((e) => TimeSlot.fromJson(e as Map<String, dynamic>))
+                  .toList()),
         );
         return val;
       },
       fieldKeyMap: const {
+        'courtTypes': 'court_types',
+        'registeredPlayers': 'registered_players',
+        'chatMessages': 'chat_messages',
         'timeSlots': 'time_slots',
         'currentBookings': 'current_bookings',
         'publicGameIds': 'public_game_ids',
@@ -259,10 +199,9 @@ Venue _$VenueFromJson(Map<String, dynamic> json) => $checkedCreate(
         'totalRatings': 'total_ratings',
         'isActive': 'is_active',
         'createdAt': 'created_at',
-        'registeredPlayers': 'registered_players',
         'pendingRequests': 'pending_requests',
-        'gameChats': 'game_chats',
-        'gameRequirements': 'game_requirements'
+        'gameRequirements': 'game_requirements',
+        'availableSlots': 'available_slots'
       },
     );
 
@@ -272,7 +211,13 @@ Map<String, dynamic> _$VenueToJson(Venue instance) => <String, dynamic>{
       'address': instance.address,
       'latitude': instance.latitude,
       'longitude': instance.longitude,
+      'description': instance.description,
       'amenities': instance.amenities,
+      'images': instance.images,
+      'court_types': instance.courtTypes,
+      'registered_players':
+          instance.registeredPlayers.map((e) => e.toJson()).toList(),
+      'chat_messages': instance.chatMessages.map((e) => e.toJson()).toList(),
       'time_slots': instance.timeSlots.map((e) => e.toJson()).toList(),
       'current_bookings':
           instance.currentBookings.map((e) => e.toJson()).toList(),
@@ -282,11 +227,11 @@ Map<String, dynamic> _$VenueToJson(Venue instance) => <String, dynamic>{
       'total_ratings': instance.totalRatings,
       'is_active': instance.isActive,
       'created_at': instance.createdAt.toIso8601String(),
-      'registered_players':
-          instance.registeredPlayers.map((e) => e.toJson()).toList(),
       'pending_requests':
           instance.pendingRequests.map((e) => e.toJson()).toList(),
-      'game_chats': instance.gameChats.map((e) => e.toJson()).toList(),
       'game_requirements':
           instance.gameRequirements.map((e) => e.toJson()).toList(),
+      'courts': instance.courts.map((e) => e.toJson()).toList(),
+      'available_slots':
+          instance.availableSlots.map((e) => e.toJson()).toList(),
     };

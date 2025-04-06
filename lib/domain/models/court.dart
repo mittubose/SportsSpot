@@ -19,8 +19,11 @@ class Court {
   final List<String> amenities;
   final String openingHours;
   final double pricePerHour;
+  @JsonKey(defaultValue: <TimeSlot>[])
   final List<TimeSlot> bookedSlots;
+  @JsonKey(defaultValue: <PublicGame>[])
   final List<PublicGame> publicGames;
+  @JsonKey(defaultValue: <GameRequirement>[])
   final List<GameRequirement> gameRequirements;
 
   Court({
@@ -37,10 +40,12 @@ class Court {
     required this.amenities,
     required this.openingHours,
     required this.pricePerHour,
-    this.bookedSlots = const [],
-    this.publicGames = const [],
-    this.gameRequirements = const [],
-  });
+    List<TimeSlot>? bookedSlots,
+    List<PublicGame>? publicGames,
+    List<GameRequirement>? gameRequirements,
+  })  : bookedSlots = bookedSlots ?? const <TimeSlot>[],
+        publicGames = publicGames ?? const <PublicGame>[],
+        gameRequirements = gameRequirements ?? const <GameRequirement>[];
 
   factory Court.fromJson(Map<String, dynamic> json) => _$CourtFromJson(json);
   Map<String, dynamic> toJson() => _$CourtToJson(this);

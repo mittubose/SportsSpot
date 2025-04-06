@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:joola_spot/domain/models/game.dart';
+import 'package:joola_spot/domain/models/player.dart';
 import 'package:joola_spot/presentation/routes/app_router.dart';
 
 class GameDetailsScreen extends ConsumerWidget {
@@ -166,7 +167,16 @@ class GameDetailsScreen extends ConsumerWidget {
                   Text(player.averageRating.toStringAsFixed(1)),
                 ],
               ),
-              onTap: () => AppRouter.navigateToPlayerProfile(context, player),
+              onTap: () {
+                final playerProfile = PlayerProfile(
+                  id: player.id,
+                  name: player.name,
+                  rating: player.averageRating,
+                  gamesPlayed: player.ratings.length,
+                  profilePicUrl: player.photoUrl,
+                );
+                AppRouter.navigateToPlayerProfile(context, playerProfile);
+              },
             );
           },
         ),

@@ -1,5 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:joola_spot/domain/models/venue.dart';
+import 'package:joola_spot/domain/models/player.dart';
+import 'package:joola_spot/domain/models/chat.dart';
 
 void main() {
   group('Venue Model Tests', () {
@@ -15,21 +17,17 @@ void main() {
       player1 = PlayerProfile(
         id: 'player1',
         name: 'John Doe',
-        gender: 'male',
         rating: 4.5,
-        preferredGameTypes: ['Singles', 'Doubles'],
-        achievements: ['Tournament Winner 2023'],
-        joinedDate: DateTime(2023),
+        gamesPlayed: 20,
+        profilePicUrl: 'profile1.jpg',
       );
 
       player2 = PlayerProfile(
         id: 'player2',
         name: 'Jane Smith',
-        gender: 'female',
         rating: 4.2,
-        preferredGameTypes: ['Doubles'],
-        achievements: [],
-        joinedDate: DateTime(2023),
+        gamesPlayed: 15,
+        profilePicUrl: 'profile2.jpg',
       );
 
       requirement = GameRequirement(
@@ -50,12 +48,10 @@ void main() {
       );
 
       message = ChatMessage(
-        id: 'msg1',
-        senderId: player1.id,
-        gameId: 'game1',
+        id: '1',
+        senderId: '1',
         message: 'Hello everyone!',
-        sentAt: DateTime(2024),
-        isRead: false,
+        timestamp: DateTime.now(),
       );
 
       booking = Booking(
@@ -76,7 +72,10 @@ void main() {
         address: '123 Test St',
         latitude: 12.9716,
         longitude: 77.5946,
+        description: 'A test venue for unit tests',
         amenities: ['Parking', 'Pro Shop'],
+        images: ['image1.jpg', 'image2.jpg'],
+        courtTypes: ['Singles', 'Doubles'],
         timeSlots: [],
         currentBookings: [booking],
         publicGameIds: ['game1'],
@@ -85,8 +84,8 @@ void main() {
         isActive: true,
         createdAt: DateTime(2024),
         registeredPlayers: [player1, player2],
+        chatMessages: [message],
         pendingRequests: [request],
-        gameChats: [message],
         gameRequirements: [requirement],
       );
     });

@@ -415,7 +415,12 @@ class VenueSelectionScreen extends ConsumerWidget {
                 address: court.address,
                 latitude: court.latitude,
                 longitude: court.longitude,
+                description: 'Test venue description',
                 amenities: court.amenities,
+                images: ['test.jpg'],
+                courtTypes: ['singles'],
+                registeredPlayers: [],
+                chatMessages: [],
                 timeSlots: slots,
                 currentBookings: [],
                 publicGameIds: [],
@@ -424,7 +429,6 @@ class VenueSelectionScreen extends ConsumerWidget {
                 totalRatings: 0,
                 isActive: true,
                 createdAt: DateTime.now(),
-                gameRequirements: court.gameRequirements,
               );
               Navigator.pop(context, venue);
             },

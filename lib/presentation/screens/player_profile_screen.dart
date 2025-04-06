@@ -1,200 +1,222 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Badge;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:joola_spot/domain/models/player.dart';
+import 'package:joola_spot/presentation/widgets/game_history_list.dart';
 
-class PlayerProfileScreen extends ConsumerWidget {
-  final Player player;
+class PlayerProfileScreen extends ConsumerStatefulWidget {
+  final PlayerProfile player;
 
   const PlayerProfileScreen({
-    super.key,
+    Key? key,
     required this.player,
-  });
+  }) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PlayerProfileScreen> createState() =>
+      _PlayerProfileScreenState();
+}
+
+class _PlayerProfileScreenState extends ConsumerState<PlayerProfileScreen> {
+  bool _isProfileVisible = true;
+  bool _isGameHistoryVisible = true;
+  bool _isRatingVisible = true;
+  bool _isFriendRequestSent = false;
+  bool _isBlocked = false;
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(player.name),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.message),
-            onPressed: () {
-              // TODO: Navigate to chat with player
-            },
-          ),
-        ],
+        title: Text(widget.player.name),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          _buildProfileHeader(context),
-          const SizedBox(height: 24),
-          _buildRatings(context),
-          const SizedBox(height: 24),
-          _buildBadges(context),
-        ],
-      ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () {
-                    // TODO: Implement add/remove friend functionality
-                  },
-                  icon: const Icon(Icons.person_add),
-                  label: const Text('Add Friend'),
-                ),
-              ),
-              const SizedBox(width: 16),
-              IconButton(
-                icon: const Icon(Icons.block),
-                onPressed: () {
-                  // TODO: Implement block functionality
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildProfileHeader(BuildContext context) {
-    return Column(
-      children: [
-        CircleAvatar(
-          radius: 50,
-          backgroundImage:
-              player.photoUrl != null ? NetworkImage(player.photoUrl!) : null,
-          child: player.photoUrl == null
-              ? Text(
-                  player.name[0].toUpperCase(),
-                  style: const TextStyle(fontSize: 32),
-                )
-              : null,
-        ),
-        const SizedBox(height: 16),
-        Text(
-          player.name,
-          style: Theme.of(context).textTheme.headlineSmall,
-        ),
-        const SizedBox(height: 8),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(Icons.star, color: Colors.amber),
-            const SizedBox(width: 4),
-            Text(
-              player.averageRating.toStringAsFixed(1),
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(width: 16),
-            const Icon(Icons.calendar_today),
-            const SizedBox(width: 4),
-            Text(
-              'Joined ${_formatDate(player.joinedAt)}',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
+            _buildProfileInfo(),
+            const SizedBox(height: 16),
+            _buildRatings(),
+            const SizedBox(height: 16),
+            _buildBadges(),
+            const SizedBox(height: 16),
+            _buildFriendsList(),
+            const SizedBox(height: 16),
+            _buildPrivacySettings(),
+            const SizedBox(height: 16),
+            _buildFriendActions(),
+            const SizedBox(height: 16),
+            _buildGameHistory(),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildProfileInfo() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (widget.player.profilePicUrl != null)
+          CircleAvatar(
+            radius: 50,
+            backgroundImage: NetworkImage(widget.player.profilePicUrl!),
+          ),
+        const SizedBox(height: 16),
+        Text('Rating: ${widget.player.rating}'),
+        Text('Games Played: ${widget.player.gamesPlayed}'),
       ],
     );
   }
 
-  Widget _buildRatings(BuildContext context) {
-    final ratingCategories = _groupRatingsByCategory();
-
+  Widget _buildRatings() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Ratings',
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        const SizedBox(height: 16),
-        ...ratingCategories.entries.map((entry) {
-          final category = entry.key;
-          final ratings = entry.value;
-          final averageRating =
-              ratings.map((r) => r.score).reduce((a, b) => a + b) /
-                  ratings.length;
-
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  category,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Expanded(
-                      child: LinearProgressIndicator(
-                        value: averageRating / 5,
-                        backgroundColor: Colors.grey[200],
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          Theme.of(context).colorScheme.primary,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Text(
-                      averageRating.toStringAsFixed(1),
-                      style: Theme.of(context).textTheme.titleSmall,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          );
-        }).toList(),
+        const Text('Skill Rating',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        Text('${widget.player.rating}'),
       ],
     );
   }
 
-  Widget _buildBadges(BuildContext context) {
-    if (player.badges.isEmpty) return const SizedBox.shrink();
+  Widget _buildBadges() {
+    // TODO: Replace with actual badges from provider
+    final badges = [
+      Badge(
+        id: 'badge1',
+        name: 'Regular Player',
+        description: 'Played 10+ games',
+        icon: 'regular_player.png',
+      ),
+      Badge(
+        id: 'badge2',
+        name: 'Pro Player',
+        description: 'Maintained 4.5+ rating',
+        icon: 'pro_player.png',
+      ),
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Badges',
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        const SizedBox(height: 16),
+        const Text('Badges',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          children: player.badges.map((badge) {
-            return Tooltip(
-              message: badge.description,
-              child: Chip(
-                avatar: const Icon(Icons.military_tech),
-                label: Text(badge.name),
-              ),
-            );
-          }).toList(),
+          children: badges.map((badge) => _buildBadge(badge)).toList(),
         ),
       ],
     );
   }
 
-  Map<String, List<Rating>> _groupRatingsByCategory() {
-    final groupedRatings = <String, List<Rating>>{};
-    for (final rating in player.ratings) {
-      groupedRatings.putIfAbsent(rating.category, () => []).add(rating);
-    }
-    return groupedRatings;
+  Widget _buildBadge(Badge badge) {
+    return Tooltip(
+      message: badge.description,
+      child: Chip(
+        label: Text(badge.name),
+        avatar: Icon(Icons.star),
+      ),
+    );
   }
 
-  String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
+  Widget _buildFriendsList() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Friends',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        // TODO: Add friends list implementation
+        const Text('No friends yet'),
+      ],
+    );
+  }
+
+  Widget _buildPrivacySettings() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Private Profile',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        SwitchListTile(
+          title: const Text('Profile Visibility'),
+          value: _isProfileVisible,
+          onChanged: (value) {
+            setState(() {
+              _isProfileVisible = value;
+            });
+          },
+        ),
+        SwitchListTile(
+          title: const Text('Game History Visibility'),
+          value: _isGameHistoryVisible,
+          onChanged: (value) {
+            setState(() {
+              _isGameHistoryVisible = value;
+            });
+          },
+        ),
+        SwitchListTile(
+          title: const Text('Rating Visibility'),
+          value: _isRatingVisible,
+          onChanged: (value) {
+            setState(() {
+              _isRatingVisible = value;
+            });
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFriendActions() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ElevatedButton(
+          onPressed: () {
+            setState(() {
+              _isFriendRequestSent = true;
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Friend Request Sent')),
+            );
+          },
+          child:
+              Text(_isFriendRequestSent ? 'Friend Request Sent' : 'Add Friend'),
+        ),
+        const SizedBox(height: 8),
+        TextButton(
+          onPressed: () {
+            setState(() {
+              _isBlocked = true;
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Player Blocked')),
+            );
+          },
+          child: Text(_isBlocked ? 'Player Blocked' : 'Block Player'),
+          style: TextButton.styleFrom(foregroundColor: Colors.red),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGameHistory() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Game History',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        // TODO: Replace with actual game history from provider
+        GameHistoryList(games: []),
+      ],
+    );
   }
 }

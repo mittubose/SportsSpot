@@ -63,7 +63,12 @@ void main() {
         address: 'Test Address',
         latitude: 0,
         longitude: 0,
+        description: 'Test venue description',
         amenities: ['Test'],
+        images: ['test.jpg'],
+        courtTypes: ['singles'],
+        registeredPlayers: [],
+        chatMessages: [],
         timeSlots: [],
         currentBookings: [],
         publicGameIds: [],
@@ -105,16 +110,12 @@ void main() {
   });
 
   testWidgets('Navigate to PlayerProfileScreen', (tester) async {
-    final mockPlayer = Player(
+    final mockPlayerProfile = PlayerProfile(
       id: '1',
       name: 'Test Player',
-      privacy: PlayerPrivacy.public,
-      ratings: [],
-      badges: [],
-      friendIds: [],
-      blockedIds: [],
-      joinedAt: DateTime.now(),
-      isActive: true,
+      rating: 4.5,
+      gamesPlayed: 10,
+      profilePicUrl: 'test.jpg',
     );
 
     await tester.pumpWidget(
@@ -122,12 +123,12 @@ void main() {
         child: MaterialApp(
           routes: {
             '/player-profile': (context) =>
-                PlayerProfileScreen(player: mockPlayer),
+                PlayerProfileScreen(player: mockPlayerProfile),
           },
           home: Builder(
             builder: (context) => TextButton(
               onPressed: () =>
-                  AppRouter.navigateToPlayerProfile(context, mockPlayer),
+                  AppRouter.navigateToPlayerProfile(context, mockPlayerProfile),
               child: const Text('Navigate'),
             ),
           ),
@@ -149,7 +150,12 @@ void main() {
       address: 'Test Address',
       latitude: 0,
       longitude: 0,
+      description: 'Test venue description',
       amenities: ['Test'],
+      images: ['test.jpg'],
+      courtTypes: ['singles'],
+      registeredPlayers: [],
+      chatMessages: [],
       timeSlots: [],
       currentBookings: [],
       publicGameIds: [],

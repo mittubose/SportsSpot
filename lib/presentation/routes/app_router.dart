@@ -31,9 +31,9 @@ class AppRouter {
           builder: (_) => GameDetailsScreen(game: game),
         );
       case playerProfile:
-        final player = settings.arguments as Player;
+        final player = settings.arguments as PlayerProfile;
         return MaterialPageRoute(
-          builder: (_) => PlayerProfileScreen(player: player),
+          builder: (context) => PlayerProfileScreen(player: player),
         );
       case venueDetails:
         final venue = settings.arguments as Venue;
@@ -63,7 +63,8 @@ class AppRouter {
     );
   }
 
-  static void navigateToPlayerProfile(BuildContext context, Player player) {
+  static void navigateToPlayerProfile(
+      BuildContext context, PlayerProfile player) {
     Navigator.pushNamed(
       context,
       playerProfile,

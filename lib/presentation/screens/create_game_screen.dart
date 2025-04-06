@@ -5,7 +5,10 @@ import 'package:joola_spot/domain/models/court.dart';
 import 'package:joola_spot/domain/models/time_slot.dart';
 import 'package:joola_spot/domain/models/venue.dart';
 import 'package:joola_spot/domain/models/game.dart';
+import 'package:joola_spot/domain/models/player.dart';
 import 'package:joola_spot/presentation/screens/venue_selection_screen.dart';
+import 'package:joola_spot/presentation/screens/player_search_dialog.dart';
+import 'package:joola_spot/presentation/widgets/time_slot_selector.dart';
 
 class CreateGameScreen extends ConsumerStatefulWidget {
   const CreateGameScreen({super.key});
@@ -30,6 +33,7 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
       StateProvider<SkillLevel>((ref) => SkillLevel.beginner);
   final _playerCount = StateProvider<int>((ref) => 2);
   final _selectedRequirements = StateProvider<List<String>>((ref) => []);
+  final _selectedPlayers = StateProvider<List<PlayerProfile>>((ref) => []);
 
   @override
   void dispose() {
@@ -61,6 +65,21 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
     }
   }
 
+  void _showPlayerSearchDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => PlayerSearchDialog(
+        onPlayerSelected: (player) {
+          final players = List<PlayerProfile>.from(ref.read(_selectedPlayers));
+          if (!players.contains(player)) {
+            players.add(player);
+            ref.read(_selectedPlayers.notifier).state = players;
+          }
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final selectedVenue = ref.watch(_selectedVenue);
@@ -71,6 +90,7 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
     final selectedSkillLevel = ref.watch(_selectedSkillLevel);
     final playerCount = ref.watch(_playerCount);
     final selectedRequirements = ref.watch(_selectedRequirements);
+    final selectedPlayers = ref.watch(_selectedPlayers);
 
     return Scaffold(
       appBar: AppBar(
@@ -95,38 +115,32 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
               },
             ),
             const SizedBox(height: 16),
-            ListTile(
-              title: const Text('Select Venue'),
-              subtitle: selectedVenue != null
-                  ? Text(selectedVenue.name)
-                  : const Text('No venue selected'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => _selectVenue(context),
+            TextFormField(
+              controller: _descriptionController,
+              decoration: const InputDecoration(
+                labelText: 'Description',
+                hintText: 'Enter a description for your game',
+              ),
+              maxLines: 3,
             ),
-            if (selectedVenue != null) ...[
-              const SizedBox(height: 16),
-              const Text('Available Time Slots'),
-              const SizedBox(height: 8),
-              if (availableTimeSlots.isEmpty)
-                const Text('No time slots available for selected date')
-              else
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: availableTimeSlots.map((slot) {
-                    final isSelected = selectedTimeSlot == slot;
-                    return FilterChip(
-                      label: Text(
-                          '${DateFormat('HH:mm').format(slot.startTime)} - ${DateFormat('HH:mm').format(slot.endTime)}'),
-                      selected: isSelected,
-                      onSelected: (selected) {
-                        ref.read(_selectedTimeSlot.notifier).state =
-                            selected ? slot : null;
-                      },
-                    );
-                  }).toList(),
-                ),
-            ],
+            const SizedBox(height: 16),
+            DropdownButtonFormField<int>(
+              value: playerCount,
+              decoration: const InputDecoration(
+                labelText: 'Number of Players',
+              ),
+              items: [2, 4, 6, 8].map((count) {
+                return DropdownMenuItem(
+                  value: count,
+                  child: Text(count.toString()),
+                );
+              }).toList(),
+              onChanged: (value) {
+                if (value != null) {
+                  ref.read(_playerCount.notifier).state = value;
+                }
+              },
+            ),
             const SizedBox(height: 16),
             DropdownButtonFormField<GamePrivacy>(
               value: selectedPrivacy,
@@ -182,70 +196,161 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
               },
             ),
             const SizedBox(height: 16),
-            TextFormField(
-              controller: _descriptionController,
-              decoration: const InputDecoration(
-                labelText: 'Description',
-                hintText: 'Enter a description for your game',
+            ListTile(
+              title: const Text('Select Venue'),
+              subtitle: selectedVenue != null
+                  ? Text(selectedVenue.name)
+                  : const Text('No venue selected'),
+              onTap: () => _selectVenue(context),
+            ),
+            if (selectedVenue != null) ...[
+              const SizedBox(height: 16),
+              const Text('Available Time Slots'),
+              TimeSlotSelector(
+                availableSlots: availableTimeSlots,
+                onSlotSelected: (timeSlot) {
+                  ref.read(_selectedTimeSlot.notifier).state = timeSlot;
+                },
+                selectedSlot: selectedTimeSlot,
               ),
-              maxLines: 3,
+            ],
+            const SizedBox(height: 16),
+            ExpansionTile(
+              title: const Text('Game Requirements'),
+              children: [
+                CheckboxListTile(
+                  title: const Text('Bring your own bat'),
+                  value: selectedRequirements.contains('bring_bat'),
+                  onChanged: (value) {
+                    final requirements =
+                        List<String>.from(selectedRequirements);
+                    if (value ?? false) {
+                      requirements.add('bring_bat');
+                    } else {
+                      requirements.remove('bring_bat');
+                    }
+                    ref.read(_selectedRequirements.notifier).state =
+                        requirements;
+                  },
+                ),
+                CheckboxListTile(
+                  title: const Text('Women only'),
+                  value: selectedRequirements.contains('women_only'),
+                  onChanged: (value) {
+                    final requirements =
+                        List<String>.from(selectedRequirements);
+                    if (value ?? false) {
+                      requirements.add('women_only');
+                    } else {
+                      requirements.remove('women_only');
+                    }
+                    ref.read(_selectedRequirements.notifier).state =
+                        requirements;
+                  },
+                ),
+                CheckboxListTile(
+                  title: const Text('Men only'),
+                  value: selectedRequirements.contains('men_only'),
+                  onChanged: (value) {
+                    final requirements =
+                        List<String>.from(selectedRequirements);
+                    if (value ?? false) {
+                      requirements.add('men_only');
+                    } else {
+                      requirements.remove('men_only');
+                    }
+                    ref.read(_selectedRequirements.notifier).state =
+                        requirements;
+                  },
+                ),
+                CheckboxListTile(
+                  title: const Text('Pro match'),
+                  value: selectedRequirements.contains('pro_match'),
+                  onChanged: (value) {
+                    final requirements =
+                        List<String>.from(selectedRequirements);
+                    if (value ?? false) {
+                      requirements.add('pro_match');
+                    } else {
+                      requirements.remove('pro_match');
+                    }
+                    ref.read(_selectedRequirements.notifier).state =
+                        requirements;
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () => _showPlayerSearchDialog(),
+              child: const Text('Add Players'),
+            ),
+            if (selectedPlayers.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text('Selected Players (${selectedPlayers.length})'),
+              Wrap(
+                spacing: 8,
+                children: selectedPlayers.map((player) {
+                  return Chip(
+                    avatar: CircleAvatar(
+                      backgroundImage: player.profilePicUrl != null
+                          ? NetworkImage(player.profilePicUrl!)
+                          : null,
+                    ),
+                    label: Text(player.name),
+                    onDeleted: () {
+                      final players = List<PlayerProfile>.from(selectedPlayers);
+                      players.remove(player);
+                      ref.read(_selectedPlayers.notifier).state = players;
+                    },
+                  );
+                }).toList(),
+              ),
+            ],
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _formKey.currentState?.validate() ?? false
+                  ? () {
+                      if (_formKey.currentState!.validate()) {
+                        final game = Game(
+                          id: DateTime.now().toString(),
+                          title: _titleController.text,
+                          description: _descriptionController.text,
+                          dateTime: selectedTimeSlot!.startTime,
+                          playerCount: playerCount,
+                          privacy: selectedPrivacy,
+                          gameType: selectedGameType,
+                          skillLevel: selectedSkillLevel,
+                          venue: selectedVenue!,
+                          players: selectedPlayers
+                              .map((profile) => Player(
+                                    id: profile.id,
+                                    name: profile.name,
+                                    photoUrl: profile.profilePicUrl,
+                                    privacy: PlayerPrivacy.public,
+                                    ratings: [],
+                                    badges: [],
+                                    friendIds: [],
+                                    blockedIds: [],
+                                    joinedAt: DateTime.now(),
+                                    isActive: true,
+                                  ))
+                              .toList(),
+                          requirements: selectedRequirements,
+                          isActive: true,
+                          createdAt: DateTime.now(),
+                          createdBy: '', // TODO: Add current user ID
+                        );
+                        // TODO: Handle game creation
+                        Navigator.pop(context, game);
+                      }
+                    }
+                  : null,
+              child: const Text('Create Game'),
             ),
           ],
         ),
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(16),
-        child: ElevatedButton(
-          onPressed: selectedVenue != null && selectedTimeSlot != null
-              ? () => _createGame()
-              : null,
-          child: const Text('Create Game'),
-        ),
-      ),
     );
-  }
-
-  void _createGame() {
-    if (_formKey.currentState?.validate() ?? false) {
-      final selectedVenue = ref.read(_selectedVenue);
-      if (selectedVenue == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Please select a venue'),
-          ),
-        );
-        return;
-      }
-
-      final selectedTimeSlot = ref.read(_selectedTimeSlot);
-      if (selectedTimeSlot == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Please select a time slot'),
-          ),
-        );
-        return;
-      }
-
-      // TODO: Create game with selected venue and time slot
-      final game = Game(
-        id: '', // TODO: Generate ID
-        title: _titleController.text,
-        dateTime: selectedTimeSlot.startTime,
-        playerCount: ref.read(_playerCount),
-        privacy: ref.read(_selectedPrivacy),
-        gameType: ref.read(_selectedGameType),
-        skillLevel: ref.read(_selectedSkillLevel),
-        venue: selectedVenue,
-        players: [], // TODO: Add current user
-        requirements: ref.read(_selectedRequirements),
-        description: _descriptionController.text,
-        isActive: true,
-        createdAt: DateTime.now(),
-        createdBy: '', // TODO: Add current user ID
-      );
-
-      // TODO: Save game and navigate back
-    }
   }
 }

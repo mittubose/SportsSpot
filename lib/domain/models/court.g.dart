@@ -34,7 +34,7 @@ Court _$CourtFromJson(Map<String, dynamic> json) => $checkedCreate(
                   (v as List<dynamic>?)
                       ?.map((e) => TimeSlot.fromJson(e as Map<String, dynamic>))
                       .toList() ??
-                  const []),
+                  []),
           publicGames: $checkedConvert(
               'public_games',
               (v) =>
@@ -42,7 +42,7 @@ Court _$CourtFromJson(Map<String, dynamic> json) => $checkedCreate(
                       ?.map(
                           (e) => PublicGame.fromJson(e as Map<String, dynamic>))
                       .toList() ??
-                  const []),
+                  []),
           gameRequirements: $checkedConvert(
               'game_requirements',
               (v) =>
@@ -50,7 +50,7 @@ Court _$CourtFromJson(Map<String, dynamic> json) => $checkedCreate(
                       ?.map((e) =>
                           GameRequirement.fromJson(e as Map<String, dynamic>))
                       .toList() ??
-                  const []),
+                  []),
         );
         return val;
       },

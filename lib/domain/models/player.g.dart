@@ -38,23 +38,19 @@ Badge _$BadgeFromJson(Map<String, dynamic> json) => $checkedCreate(
       ($checkedConvert) {
         final val = Badge(
           id: $checkedConvert('id', (v) => v as String),
-          type: $checkedConvert('type', (v) => v as String),
           name: $checkedConvert('name', (v) => v as String),
           description: $checkedConvert('description', (v) => v as String),
-          earnedAt:
-              $checkedConvert('earned_at', (v) => DateTime.parse(v as String)),
+          icon: $checkedConvert('icon', (v) => v as String),
         );
         return val;
       },
-      fieldKeyMap: const {'earnedAt': 'earned_at'},
     );
 
 Map<String, dynamic> _$BadgeToJson(Badge instance) => <String, dynamic>{
       'id': instance.id,
-      'type': instance.type,
       'name': instance.name,
       'description': instance.description,
-      'earned_at': instance.earnedAt.toIso8601String(),
+      'icon': instance.icon,
     };
 
 Player _$PlayerFromJson(Map<String, dynamic> json) => $checkedCreate(
@@ -118,3 +114,34 @@ const _$PlayerPrivacyEnumMap = {
   PlayerPrivacy.public: 'public',
   PlayerPrivacy.anonymous: 'anonymous',
 };
+
+PlayerProfile _$PlayerProfileFromJson(Map<String, dynamic> json) =>
+    $checkedCreate(
+      'PlayerProfile',
+      json,
+      ($checkedConvert) {
+        final val = PlayerProfile(
+          id: $checkedConvert('id', (v) => v as String),
+          name: $checkedConvert('name', (v) => v as String),
+          rating: $checkedConvert('rating', (v) => (v as num).toDouble()),
+          gamesPlayed:
+              $checkedConvert('games_played', (v) => (v as num).toInt()),
+          profilePicUrl:
+              $checkedConvert('profile_pic_url', (v) => v as String?),
+        );
+        return val;
+      },
+      fieldKeyMap: const {
+        'gamesPlayed': 'games_played',
+        'profilePicUrl': 'profile_pic_url'
+      },
+    );
+
+Map<String, dynamic> _$PlayerProfileToJson(PlayerProfile instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'name': instance.name,
+      'rating': instance.rating,
+      'games_played': instance.gamesPlayed,
+      'profile_pic_url': instance.profilePicUrl,
+    };

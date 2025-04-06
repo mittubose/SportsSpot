@@ -29,20 +29,19 @@ class Rating {
 @JsonSerializable()
 class Badge {
   final String id;
-  final String type;
   final String name;
   final String description;
-  final DateTime earnedAt;
+  final String icon;
 
   Badge({
     required this.id,
-    required this.type,
     required this.name,
     required this.description,
-    required this.earnedAt,
+    required this.icon,
   });
 
   factory Badge.fromJson(Map<String, dynamic> json) => _$BadgeFromJson(json);
+
   Map<String, dynamic> toJson() => _$BadgeToJson(this);
 }
 
@@ -113,4 +112,25 @@ class Player {
       isActive: isActive ?? this.isActive,
     );
   }
+}
+
+@JsonSerializable()
+class PlayerProfile {
+  final String id;
+  final String name;
+  final double rating;
+  final int gamesPlayed;
+  final String? profilePicUrl;
+
+  PlayerProfile({
+    required this.id,
+    required this.name,
+    required this.rating,
+    required this.gamesPlayed,
+    this.profilePicUrl,
+  });
+
+  factory PlayerProfile.fromJson(Map<String, dynamic> json) =>
+      _$PlayerProfileFromJson(json);
+  Map<String, dynamic> toJson() => _$PlayerProfileToJson(this);
 }
