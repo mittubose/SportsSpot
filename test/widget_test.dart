@@ -27,7 +27,7 @@ void main() {
     // Test bottom navigation
     await tester.tap(find.text('Courts'));
     await tester.pumpAndSettle();
-    expect(find.text('Map View Coming Soon'), findsOneWidget);
+    expect(find.text('Map View Coming Soon!'), findsOneWidget);
 
     await tester.tap(find.text('Profile'));
     await tester.pumpAndSettle();

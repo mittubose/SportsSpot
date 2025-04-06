@@ -5,6 +5,7 @@ import 'package:joola_spot/presentation/screens/favorite_courts_screen.dart';
 import 'package:joola_spot/presentation/screens/payment_methods_screen.dart';
 import 'package:joola_spot/presentation/screens/notifications_screen.dart';
 import 'package:joola_spot/presentation/screens/help_support_screen.dart';
+import 'package:joola_spot/presentation/screens/settings_screen.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -18,7 +19,12 @@ class ProfileScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
-              // TODO: Navigate to settings
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SettingsScreen(),
+                ),
+              );
             },
           ),
         ],
